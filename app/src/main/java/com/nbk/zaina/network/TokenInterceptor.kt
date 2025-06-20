@@ -1,31 +1,34 @@
-package com.example.androidtemplate.network
+package com.nbk.rise.network
 
-import android.util.Log
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TokenInterceptor(private val tokenProvider: () -> String?) : Interceptor {
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val originalRequest = chain.request()
-        val token = tokenProvider()
-        val newRequest = if (!token.isNullOrBlank()) {
-            Log.d("Interceptor", "Original request: ${originalRequest.url}")
-            Log.d("Interceptor", "Token from TokenManager: $token")
-
-            originalRequest.newBuilder()
-                .addHeader("Authorization", "Bearer $token")
-                .build()
-        } else {
-            Log.d("Interceptor", "Original request: ${originalRequest.url}")
-            Log.d("Interceptor", "Token from TokenManager: $token")
-
-            originalRequest
-        }
-        val response = chain.proceed(newRequest)
-        if (response.code == 401) {
-            Log.w("Interceptor", "Token expired or unauthorized")
-        }
-        return response
+@Singleton
+class TokenInterceptor @Inject constructor() : Interceptor {
+    
+    @Volatile
+    private var token: String? = null
+    
+    fun setToken(newToken: String?) {
+        token = newToken
     }
-
+    
+    fun getToken(): String? = token
+    
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val original = chain.request()
+        
+        val requestBuilder = original.newBuilder()
+            .header("Content-Type", "application/json")
+        
+        // Add authorization header if token exists
+        token?.let {
+            requestBuilder.header("Authorization", "Bearer $it")
+        }
+        
+        val request = requestBuilder.build()
+        return chain.proceed(request)
+    }
 }

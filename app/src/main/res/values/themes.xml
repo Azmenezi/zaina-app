@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-    <style name="Theme.AndroidTemplate" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Base application theme for RISE app -->
+    <style name="Theme.Rise" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:statusBarColor">@color/nbk_green</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
 </resources>
