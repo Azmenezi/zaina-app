@@ -27,6 +27,8 @@ import com.nbk.rise.data.dtos.EventDto
 import com.nbk.rise.data.dtos.RsvpStatus
 import com.nbk.rise.ui.theme.*
 import com.nbk.rise.viewmodels.EventViewModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -47,7 +49,9 @@ fun EventsScreen(
             else -> eventViewModel.loadEvents(showPublicOnly)
         }
     }
-    
+    LaunchedEffect(Unit) {
+        eventViewModel.loadEvents()
+    }
     val currentEvents = if (showUpcomingOnly) {
         eventUiState.upcomingEvents
     } else {
@@ -359,7 +363,7 @@ private fun EventItem(
                         tint = AccentColor
                     )
                     Text(
-                        text = formatEventDate(event.date),
+                        text = formatEventDate(LocalDateTime.parse(event.date) ),
                         style = MaterialTheme.typography.bodySmall,
                         color = TextSecondary
                     )
@@ -449,8 +453,8 @@ private fun EventItem(
     }
 }
 
-private fun formatEventDate(date: kotlinx.datetime.Instant): String {
-    val localDateTime = date.toLocalDateTime(TimeZone.currentSystemDefault())
+private fun formatEventDate(date: LocalDateTime): String {
+    val localDateTime = date
     val now = kotlinx.datetime.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     
     return when {
