@@ -35,8 +35,8 @@ fun LoginScreen(
     onLoginSuccess: (UserRole) -> Unit
 ) {
     val uiState by authViewModel.uiState
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("alumna2@example.com") }
+    var password by remember { mutableStateOf("password123") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isAuthenticated) {
@@ -93,9 +93,9 @@ fun LoginScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Text(
                 text = "RISE",
                 style = MaterialTheme.typography.headlineLarge,
@@ -103,16 +103,16 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 4.sp
             )
-            
+
             Text(
                 text = "Women Leadership Development",
                 style = MaterialTheme.typography.bodyLarge,
                 color = NBKGoldLight,
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(48.dp))
-            
+
             // Login Form
             Card(
                 modifier = Modifier
@@ -133,7 +133,7 @@ fun LoginScreen(
                         color = TextPrimary,
                         fontWeight = FontWeight.SemiBold
                     )
-                    
+
                     // Email Field
                     OutlinedTextField(
                         value = email,
@@ -155,7 +155,7 @@ fun LoginScreen(
                             focusedLabelColor = NBKGreen
                         )
                     )
-                    
+
                     // Password Field
                     OutlinedTextField(
                         value = password,
@@ -172,20 +172,20 @@ fun LoginScreen(
                                 onClick = { passwordVisible = !passwordVisible }
                             ) {
                                 Icon(
-                                    imageVector = if (passwordVisible) 
-                                        Icons.Default.VisibilityOff 
-                                    else 
+                                    imageVector = if (passwordVisible)
+                                        Icons.Default.VisibilityOff
+                                    else
                                         Icons.Default.Visibility,
-                                    contentDescription = if (passwordVisible) 
-                                        "Hide password" 
-                                    else 
+                                    contentDescription = if (passwordVisible)
+                                        "Hide password"
+                                    else
                                         "Show password"
                                 )
                             }
                         },
-                        visualTransformation = if (passwordVisible) 
-                            VisualTransformation.None 
-                        else 
+                        visualTransformation = if (passwordVisible)
+                            VisualTransformation.None
+                        else
                             PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password
@@ -197,7 +197,7 @@ fun LoginScreen(
                             focusedLabelColor = NBKGreen
                         )
                     )
-                    
+
                     // Error Message
                     uiState.error?.let { error ->
                         Text(
@@ -207,9 +207,9 @@ fun LoginScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     // Login Button
                     Button(
                         onClick = {
@@ -243,9 +243,9 @@ fun LoginScreen(
                     }
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             // Footer
             Text(
                 text = "Invite-only leadership program",
@@ -255,4 +255,4 @@ fun LoginScreen(
             )
         }
     }
-} 
+}
