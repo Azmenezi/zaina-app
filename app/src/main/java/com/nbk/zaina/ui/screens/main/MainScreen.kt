@@ -2,9 +2,11 @@ package com.nbk.rise.ui.screens.main
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
@@ -100,8 +102,8 @@ fun MainScreen(
                         }
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = if (isGuestMode) "Back to Login" else "Settings",
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Logout",
                             tint = PrimaryColor
                         )
                     }
