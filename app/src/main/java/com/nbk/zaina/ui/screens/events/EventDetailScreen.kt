@@ -25,6 +25,7 @@ import com.nbk.rise.data.dtos.EventRsvpDto
 import com.nbk.rise.data.dtos.RsvpStatus
 import com.nbk.rise.ui.theme.*
 import com.nbk.rise.viewmodels.EventViewModel
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
@@ -158,7 +159,7 @@ fun EventDetailScreen(
                                         }
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = formatDetailEventDate(event.date),
+                                            text = formatDetailEventDate(Instant.parse(event.date)),
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = TextPrimary,
                                             fontWeight = FontWeight.Medium
