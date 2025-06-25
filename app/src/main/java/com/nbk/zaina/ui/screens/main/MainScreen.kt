@@ -153,14 +153,14 @@ fun MainScreen(
             
             composable(Screen.AlumnaDashboard.route) {
                 AlumnaDashboardScreen(
-                    onNavigateToEvents = { 
-                        bottomNavController.navigate(Screen.Events.route) 
+                    onNavigateToEvents = {
+                        bottomNavController.navigate(Screen.Events.route)
                     },
-                    onNavigateToResources = { 
-                        bottomNavController.navigate(Screen.Resources.route) 
+                    onNavigateToResources = {
+                        bottomNavController.navigate(Screen.Resources.route)
                     },
-                    onNavigateToDirectory = { 
-                        bottomNavController.navigate(Screen.Directory.route) 
+                    onNavigateToDirectory = {
+                        bottomNavController.navigate(Screen.Directory.route)
                     }
                 )
             }
