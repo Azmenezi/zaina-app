@@ -32,7 +32,8 @@ import com.nbk.rise.viewmodels.AuthViewModel
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel,
-    onLoginSuccess: (UserRole) -> Unit
+    onLoginSuccess: (UserRole) -> Unit,
+    onExploreAsGuest: () -> Unit = {}
 ) {
     val uiState by authViewModel.uiState
     var email by remember { mutableStateOf("alumna2@example.com") }
@@ -198,6 +199,7 @@ fun LoginScreen(
                         )
                     )
 
+
                     // Error Message
                     uiState.error?.let { error ->
                         Text(
@@ -210,28 +212,25 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
+
                     // Login Button
                     Button(
                         onClick = {
-                            if (email.isNotBlank() && password.isNotBlank()) {
-                                authViewModel.login(email, password)
-                            }
+                            authViewModel.login(email, password)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
-                        enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank(),
+                            .height(48.dp),
+                        enabled = email.isNotBlank() && password.isNotBlank() && !uiState.isLoading,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = NBKGreen,
                             contentColor = LuxuryWhite
-                        ),
-                        shape = RoundedCornerShape(8.dp)
+                        )
                     ) {
                         if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
-                                color = LuxuryWhite,
-                                strokeWidth = 2.dp
+                                color = LuxuryWhite
                             )
                         } else {
                             Text(
@@ -241,8 +240,64 @@ fun LoginScreen(
                             )
                         }
                     }
+                    
+                    // Divider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Divider(modifier = Modifier.weight(1f))
+                        Text(
+                            text = "OR",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Divider(modifier = Modifier.weight(1f))
+                    }
+                    
+                    // Explore Button
+                    OutlinedButton(
+                        onClick = onExploreAsGuest,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = NBKGreen
+                        )
+                    ) {
+                        Text(
+                            text = "Explore as Guest",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    
+                    // Apply Button
+                    TextButton(
+                        onClick = { /* TODO: Navigate to application */ },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Apply to RISE Program",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = NBKGreen,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    
+                    // Error Display
+                    uiState.error?.let { error ->
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
+
 
             Spacer(modifier = Modifier.height(32.dp))
 
@@ -253,6 +308,7 @@ fun LoginScreen(
                 color = NBKGoldLight,
                 textAlign = TextAlign.Center
             )
+
         }
     }
 }

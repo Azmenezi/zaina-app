@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -48,15 +49,17 @@ fun DirectoryScreen(
     
     // Filter users based on search and role
     val filteredUsers = remember(userUiState.users, searchQuery, selectedRole) {
-        userUiState.users.filter { user ->
-            val matchesSearch = if (searchQuery.isBlank()) true else {
-                user.name?.contains(searchQuery, ignoreCase = true) == true ||
-                user.company?.contains(searchQuery, ignoreCase = true) == true ||
-                user.position?.contains(searchQuery, ignoreCase = true) == true
+        userUiState.users
+            .filter { user -> user.role != UserRole.APPLICANT } // Hide applicants
+            .filter { user ->
+                val matchesSearch = if (searchQuery.isBlank()) true else {
+                    user.name?.contains(searchQuery, ignoreCase = true) == true ||
+                    user.company?.contains(searchQuery, ignoreCase = true) == true ||
+                    user.position?.contains(searchQuery, ignoreCase = true) == true
+                }
+                val matchesRole = selectedRole == null || user.role == selectedRole
+                matchesSearch && matchesRole
             }
-            val matchesRole = selectedRole == null || user.role == selectedRole
-            matchesSearch && matchesRole
-        }
     }
     
     Column(
@@ -64,106 +67,117 @@ fun DirectoryScreen(
             .fillMaxSize()
             .background(LuxuryGray)
     ) {
-        // Header - matching other screens
+        // Header - matching dashboard theme
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = PrimaryColor
+                containerColor = Color.Transparent
             ),
             shape = RoundedCornerShape(
                 bottomStart = 16.dp,
                 bottomEnd = 16.dp
             )
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(NBKGreen, NBKGreenDark)
+                        )
+                    )
+                    .padding(20.dp)
             ) {
-                Text(
-                    text = "Directory",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Text(
-                    text = "Connect with fellow RISE members",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-                
-                // Search Bar
-                OutlinedTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = { 
-                        Text(
-                            "Search by name, company, or position...",
-                            color = Color.White.copy(alpha = 0.7f)
-                        ) 
-                    },
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = "Search",
-                            tint = Color.White.copy(alpha = 0.7f)
-                        )
-                    },
-                    trailingIcon = {
-                        if (searchQuery.isNotEmpty()) {
-                            IconButton(
-                                onClick = { searchQuery = "" }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Clear,
-                                    contentDescription = "Clear",
-                                    tint = Color.White.copy(alpha = 0.7f)
-                                )
-                            }
-                        }
-                    },
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.White,
-                        unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
-                        focusedTextColor = Color.White,
-                        unfocusedTextColor = Color.White,
-                        cursorColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(12.dp)
-                )
-                
-                // Role Filter Chips
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    item {
-                        FilterChip(
-                            onClick = { selectedRole = null },
-                            label = { Text("All") },
-                            selected = selectedRole == null,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.White,
-                                selectedLabelColor = PrimaryColor,
-                                containerColor = Color.White.copy(alpha = 0.2f),
-                                labelColor = Color.White
-                            )
-                        )
-                    }
+                    Text(
+                        text = "Directory",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Connect with fellow RISE members",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = NBKGoldLight
+                    )
                     
-                    items(UserRole.values()) { role ->
-                        FilterChip(
-                            onClick = { selectedRole = if (selectedRole == role) null else role },
-                            label = { 
-                                Text(role.name.lowercase().replaceFirstChar { it.uppercase() }) 
-                            },
-                            selected = selectedRole == role,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.White,
-                                selectedLabelColor = PrimaryColor,
-                                containerColor = Color.White.copy(alpha = 0.2f),
-                                labelColor = Color.White
+                    // Search Bar
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { 
+                            Text(
+                                "Search by name, company, or position...",
+                                color = Color.White.copy(alpha = 0.7f)
+                            ) 
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = Color.White.copy(alpha = 0.7f)
                             )
-                        )
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(
+                                    onClick = { searchQuery = "" }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Clear,
+                                        contentDescription = "Clear",
+                                        tint = Color.White.copy(alpha = 0.7f)
+                                    )
+                                }
+                            }
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.White.copy(alpha = 0.5f),
+                            focusedTextColor = Color.White,
+                            unfocusedTextColor = Color.White,
+                            cursorColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                    
+                    // Role Filter Chips
+                    LazyRow(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        item {
+                            FilterChip(
+                                onClick = { selectedRole = null },
+                                label = { Text("All") },
+                                selected = selectedRole == null,
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color.White,
+                                    selectedLabelColor = NBKGreen,
+                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    labelColor = Color.White
+                                )
+                            )
+                        }
+                        
+                        // Only show non-applicant roles
+                        items(UserRole.values().filter { it != UserRole.APPLICANT }) { role ->
+                            FilterChip(
+                                onClick = { selectedRole = if (selectedRole == role) null else role },
+                                label = { 
+                                    Text(role.name.lowercase().replaceFirstChar { it.uppercase() }) 
+                                },
+                                selected = selectedRole == role,
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color.White,
+                                    selectedLabelColor = NBKGreen,
+                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    labelColor = Color.White
+                                )
+                            )
+                        }
                     }
                 }
             }
