@@ -32,11 +32,12 @@ import com.nbk.rise.viewmodels.AuthViewModel
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel,
-    onLoginSuccess: (UserRole) -> Unit
+    onLoginSuccess: (UserRole) -> Unit,
+    onExploreAsGuest: () -> Unit = {}
 ) {
     val uiState by authViewModel.uiState
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("alumna2@example.com") }
+    var password by remember { mutableStateOf("password123") }
     var passwordVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.isAuthenticated) {
@@ -93,9 +94,9 @@ fun LoginScreen(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             Text(
                 text = "RISE",
                 style = MaterialTheme.typography.headlineLarge,
@@ -103,16 +104,16 @@ fun LoginScreen(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 4.sp
             )
-            
+
             Text(
                 text = "Women Leadership Development",
                 style = MaterialTheme.typography.bodyLarge,
                 color = NBKGoldLight,
                 textAlign = TextAlign.Center
             )
-            
+
             Spacer(modifier = Modifier.height(48.dp))
-            
+
             // Login Form
             Card(
                 modifier = Modifier
@@ -133,7 +134,7 @@ fun LoginScreen(
                         color = TextPrimary,
                         fontWeight = FontWeight.SemiBold
                     )
-                    
+
                     // Email Field
                     OutlinedTextField(
                         value = email,
@@ -155,7 +156,7 @@ fun LoginScreen(
                             focusedLabelColor = NBKGreen
                         )
                     )
-                    
+
                     // Password Field
                     OutlinedTextField(
                         value = password,
@@ -172,20 +173,20 @@ fun LoginScreen(
                                 onClick = { passwordVisible = !passwordVisible }
                             ) {
                                 Icon(
-                                    imageVector = if (passwordVisible) 
-                                        Icons.Default.VisibilityOff 
-                                    else 
+                                    imageVector = if (passwordVisible)
+                                        Icons.Default.VisibilityOff
+                                    else
                                         Icons.Default.Visibility,
-                                    contentDescription = if (passwordVisible) 
-                                        "Hide password" 
-                                    else 
+                                    contentDescription = if (passwordVisible)
+                                        "Hide password"
+                                    else
                                         "Show password"
                                 )
                             }
                         },
-                        visualTransformation = if (passwordVisible) 
-                            VisualTransformation.None 
-                        else 
+                        visualTransformation = if (passwordVisible)
+                            VisualTransformation.None
+                        else
                             PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password
@@ -197,7 +198,8 @@ fun LoginScreen(
                             focusedLabelColor = NBKGreen
                         )
                     )
-                    
+
+
                     // Error Message
                     uiState.error?.let { error ->
                         Text(
@@ -207,31 +209,28 @@ fun LoginScreen(
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
+
                     // Login Button
                     Button(
                         onClick = {
-                            if (email.isNotBlank() && password.isNotBlank()) {
-                                authViewModel.login(email, password)
-                            }
+                            authViewModel.login(email, password)
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(50.dp),
-                        enabled = !uiState.isLoading && email.isNotBlank() && password.isNotBlank(),
+                            .height(48.dp),
+                        enabled = email.isNotBlank() && password.isNotBlank() && !uiState.isLoading,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = NBKGreen,
                             contentColor = LuxuryWhite
-                        ),
-                        shape = RoundedCornerShape(8.dp)
+                        )
                     ) {
                         if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(20.dp),
-                                color = LuxuryWhite,
-                                strokeWidth = 2.dp
+                                color = LuxuryWhite
                             )
                         } else {
                             Text(
@@ -241,11 +240,67 @@ fun LoginScreen(
                             )
                         }
                     }
+                    
+                    // Divider
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Divider(modifier = Modifier.weight(1f))
+                        Text(
+                            text = "OR",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = TextSecondary,
+                            modifier = Modifier.padding(horizontal = 16.dp)
+                        )
+                        Divider(modifier = Modifier.weight(1f))
+                    }
+                    
+                    // Explore Button
+                    OutlinedButton(
+                        onClick = onExploreAsGuest,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = NBKGreen
+                        )
+                    ) {
+                        Text(
+                            text = "Explore as Guest",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                    
+                    // Apply Button
+                    TextButton(
+                        onClick = { /* TODO: Navigate to application */ },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(
+                            text = "Apply to RISE Program",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = NBKGreen,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                    
+                    // Error Display
+                    uiState.error?.let { error ->
+                        Text(
+                            text = error,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center
+                        )
+                    }
                 }
             }
-            
+
+
             Spacer(modifier = Modifier.height(32.dp))
-            
+
             // Footer
             Text(
                 text = "Invite-only leadership program",
@@ -253,6 +308,7 @@ fun LoginScreen(
                 color = NBKGoldLight,
                 textAlign = TextAlign.Center
             )
+
         }
     }
-} 
+}
