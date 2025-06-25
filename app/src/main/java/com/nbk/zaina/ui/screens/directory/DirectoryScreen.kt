@@ -1,5 +1,6 @@
 package com.nbk.rise.ui.screens.directory
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,16 +18,16 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import com.nbk.rise.data.dtos.ProfileDto
+import com.nbk.rise.R
 import com.nbk.rise.data.dtos.UserRole
 import com.nbk.rise.data.dtos.UserSummaryDto
 import com.nbk.rise.ui.theme.*
@@ -39,56 +40,59 @@ fun DirectoryScreen(
     userViewModel: UserViewModel = hiltViewModel()
 ) {
     val userUiState by userViewModel.uiState.collectAsStateWithLifecycle()
-    
+
     var searchQuery by remember { mutableStateOf("") }
     var selectedRole by remember { mutableStateOf<UserRole?>(null) }
-    
+
     LaunchedEffect(Unit) {
         userViewModel.loadAllUsers()
     }
-    
-    // Filter users based on search and role
+
     val filteredUsers = remember(userUiState.users, searchQuery, selectedRole) {
         userUiState.users
-            .filter { user -> user.role != UserRole.APPLICANT } // Hide applicants
-            .filter { user ->
-                val matchesSearch = if (searchQuery.isBlank()) true else {
-                    user.name?.contains(searchQuery, ignoreCase = true) == true ||
-                    user.company?.contains(searchQuery, ignoreCase = true) == true ||
-                    user.position?.contains(searchQuery, ignoreCase = true) == true
+            .filter { it.role != UserRole.APPLICANT }
+            .filter {
+                val matchSearch = searchQuery.isBlank() || listOfNotNull(
+                    it.name,
+                    it.company,
+                    it.position
+                ).any { field ->
+                    field.contains(searchQuery, ignoreCase = true)
                 }
-                val matchesRole = selectedRole == null || user.role == selectedRole
-                matchesSearch && matchesRole
+                val matchRole = selectedRole == null || it.role == selectedRole
+                matchSearch && matchRole
             }
     }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(LuxuryGray)
-    ) {
-        // Header - matching dashboard theme
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color.Transparent
-            ),
-            shape = RoundedCornerShape(
-                bottomStart = 16.dp,
-                bottomEnd = 16.dp
-            )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+
+        Image(
+            painter = painterResource(id = R.drawable.login_bg),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop,
+            alpha = 0.9f
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 32.dp, bottom = 104.dp)
         ) {
-            Box(
+            Spacer(modifier = Modifier.height(64.dp))
+
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(NBKGreen, NBKGreenDark)
-                        )
-                    )
-                    .padding(20.dp)
+                    .padding(horizontal = 12.dp),
+                shape = RoundedCornerShape(bottomStart = 20.dp, bottomEnd = 20.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.Black.copy(alpha = 0.25f)),
+                elevation = CardDefaults.cardElevation(0.dp)
             ) {
                 Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
@@ -100,34 +104,30 @@ fun DirectoryScreen(
                     Text(
                         text = "Connect with fellow RISE members",
                         style = MaterialTheme.typography.bodyLarge,
-                        color = NBKGoldLight
+                        color = Color.White.copy(alpha = 0.8f)
                     )
-                    
-                    // Search Bar
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { 
+                        placeholder = {
                             Text(
                                 "Search by name, company, or position...",
                                 color = Color.White.copy(alpha = 0.7f)
-                            ) 
+                            )
                         },
                         leadingIcon = {
                             Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = Color.White.copy(alpha = 0.7f)
+                                Icons.Default.Search,
+                                contentDescription = null,
+                                tint = Color.White.copy(alpha = 0.5f)
                             )
                         },
                         trailingIcon = {
                             if (searchQuery.isNotEmpty()) {
-                                IconButton(
-                                    onClick = { searchQuery = "" }
-                                ) {
+                                IconButton(onClick = { searchQuery = "" }) {
                                     Icon(
-                                        imageVector = Icons.Default.Clear,
+                                        Icons.Default.Clear,
                                         contentDescription = "Clear",
                                         tint = Color.White.copy(alpha = 0.7f)
                                     )
@@ -143,11 +143,8 @@ fun DirectoryScreen(
                         ),
                         shape = RoundedCornerShape(12.dp)
                     )
-                    
-                    // Role Filter Chips
-                    LazyRow(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         item {
                             FilterChip(
                                 onClick = { selectedRole = null },
@@ -155,25 +152,27 @@ fun DirectoryScreen(
                                 selected = selectedRole == null,
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = Color.White,
-                                    selectedLabelColor = NBKGreen,
-                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    selectedLabelColor = Purple40,
+                                    containerColor = Color.White.copy(alpha = 0.1f),
                                     labelColor = Color.White
                                 )
                             )
                         }
-                        
-                        // Only show non-applicant roles
+
                         items(UserRole.values().filter { it != UserRole.APPLICANT }) { role ->
                             FilterChip(
-                                onClick = { selectedRole = if (selectedRole == role) null else role },
-                                label = { 
-                                    Text(role.name.lowercase().replaceFirstChar { it.uppercase() }) 
+                                onClick = {
+                                    selectedRole = if (selectedRole == role) null else role
+                                },
+                                label = {
+                                    Text(
+                                        role.name.lowercase().replaceFirstChar { it.uppercase() })
                                 },
                                 selected = selectedRole == role,
                                 colors = FilterChipDefaults.filterChipColors(
                                     selectedContainerColor = Color.White,
-                                    selectedLabelColor = NBKGreen,
-                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    selectedLabelColor = Pink80,
+                                    containerColor = Color.White.copy(alpha = 0.1f),
                                     labelColor = Color.White
                                 )
                             )
@@ -181,250 +180,93 @@ fun DirectoryScreen(
                     }
                 }
             }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        if (userUiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = PrimaryColor)
-            }
-        } else if (filteredUsers.isEmpty()) {
-            // Empty State
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(32.dp)
-                ) {
-                    Card(
-                        modifier = Modifier.size(80.dp),
-                        shape = CircleShape,
-                        colors = CardDefaults.cardColors(
-                            containerColor = AccentLight
-                        )
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "No Members",
-                                modifier = Modifier.size(32.dp),
-                                tint = PrimaryColor
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = if (searchQuery.isNotEmpty() || selectedRole != null) 
-                            "No members found" 
-                        else 
-                            "No members yet",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PrimaryColor
-                    )
-                    
-                    Text(
-                        text = if (searchQuery.isNotEmpty() || selectedRole != null) 
-                            "Try adjusting your search or filters" 
-                        else 
-                            "Members will appear here as they join",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-            }
-        } else {
-            // Results Count and Clear Filters
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${filteredUsers.size} ${if (filteredUsers.size == 1) "member" else "members"}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextSecondary
-                )
-                
-                if (searchQuery.isNotEmpty() || selectedRole != null) {
-                    TextButton(
-                        onClick = {
-                            searchQuery = ""
-                            selectedRole = null
-                        }
-                    ) {
-                        Text("Clear filters", color = PrimaryColor)
-                    }
-                }
-            }
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
-            // Members List
+
+            Text(
+                text = "${filteredUsers.size} ${if (filteredUsers.size == 1) "member" else "members"}",
+                modifier = Modifier.padding(start = 16.dp),
+                color = Color.White,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(2.dp))
+
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(filteredUsers) { user ->
-                    DirectoryMemberItem(
-                        user = user,
-                        onClick = { onProfileClick(user.id.toString()) }
-                    )
-                }
-            }
-        }
-        
-        // Error handling
-        userUiState.error?.let { error ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = ErrorRed.copy(alpha = 0.1f)
-                )
-            ) {
-                Text(
-                    text = error,
-                    color = ErrorRed,
-                    modifier = Modifier.padding(16.dp),
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DirectoryMemberItem(
-    user: UserSummaryDto,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = SurfaceElevated
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Profile Image
-            Card(
-                modifier = Modifier.size(56.dp),
-                shape = CircleShape,
-                colors = CardDefaults.cardColors(
-                    containerColor = AccentLight
-                )
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = "Profile",
-                        modifier = Modifier.size(24.dp),
-                        tint = PrimaryColor
-                    )
-                }
-            }
-            
-            Spacer(modifier = Modifier.width(12.dp))
-            
-            // Member Info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // Name and Role Badge
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = user.name ?: "Anonymous",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PrimaryColor,
-                        modifier = Modifier.weight(1f, fill = false),
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    
-                    // Role Badge
-                    AssistChip(
-                        onClick = { },
-                        label = { 
-                            Text(
-                                text = user.role.name.lowercase().replaceFirstChar { it.uppercase() },
-                                style = MaterialTheme.typography.labelSmall,
-                                fontWeight = FontWeight.Medium
-                            ) 
-                        },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = when (user.role) {
-                                UserRole.MENTOR -> NBKGold.copy(alpha = 0.2f)
-                                UserRole.ALUMNA -> AccentColor.copy(alpha = 0.3f)
-                                UserRole.PARTICIPANT -> PrimaryColor.copy(alpha = 0.2f)
-                                UserRole.APPLICANT -> SecondaryColor.copy(alpha = 0.2f)
-                            },
-                            labelColor = when (user.role) {
-                                UserRole.MENTOR -> NBKGold
-                                UserRole.ALUMNA -> AccentDark
-                                UserRole.PARTICIPANT -> PrimaryColor
-                                UserRole.APPLICANT -> SecondaryColor
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onProfileClick(user.id.toString()) },
+                        shape = RoundedCornerShape(20.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.5f)),
+                        elevation = CardDefaults.cardElevation(0.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Card(
+                                modifier = Modifier.size(56.dp),
+                                shape = CircleShape,
+                                colors = CardDefaults.cardColors(containerColor = Color.LightGray.copy(alpha = 0.2f)),
+                                elevation = CardDefaults.cardElevation(2.dp)
+                            ) {
+                                Box(
+                                    Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        Icons.Default.Person,
+                                        contentDescription = "Profile",
+                                        tint = PrimaryColor
+                                    )
+                                }
                             }
-                        ),
-                        modifier = Modifier.height(24.dp)
-                    )
-                }
-                
-                // Position and Company
-                if (user.position != null || user.company != null) {
-                    Text(
-                        text = listOfNotNull(user.position, user.company).joinToString(" at "),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = TextSecondary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                ) {
+                                    Text(
+                                        text = user.name ?: "Anonymous",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color.Black,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
+                                    )
+                                }
+
+                                if (user.position != null || user.company != null) {
+                                    Text(
+                                        text = listOfNotNull(
+                                            user.position,
+                                            user.company
+                                        ).joinToString(" at "),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = Color.DarkGray,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
-
-@Composable
-fun ProfileDetailScreen(userId: String, onNavigateBack: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = "Profile Detail: $userId",
-            style = MaterialTheme.typography.headlineMedium
-        )
-    }
-} 

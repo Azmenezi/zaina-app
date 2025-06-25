@@ -10,7 +10,6 @@ import com.nbk.rise.data.dtos.UserRole
 import com.nbk.rise.ui.screens.auth.LoginScreen
 import com.nbk.rise.ui.screens.events.EventDetailScreen
 import com.nbk.rise.ui.screens.resources.ResourceDetailScreen
-import com.nbk.rise.ui.screens.directory.ProfileDetailScreen
 import com.nbk.rise.ui.screens.main.MainScreen
 import com.nbk.rise.ui.screens.messages.ChatScreen
 import com.nbk.rise.ui.screens.notifications.NotificationsScreen
