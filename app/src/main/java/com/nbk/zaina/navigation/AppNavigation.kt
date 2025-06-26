@@ -17,6 +17,7 @@ import com.nbk.rise.ui.screens.notifications.NotificationsScreen
 import com.nbk.rise.viewmodels.AuthViewModel
 import com.nbk.rise.ui.screens.profile.MyProfileScreen
 import com.nbk.rise.ui.screens.profile.ViewProfileScreen
+import com.nbk.zaina.ui.screens.auth.GuestIntroScreen
 
 @Composable
 fun AppNavigation(
@@ -41,6 +42,18 @@ fun AppNavigation(
                     navController.navigate(Screen.Main.route) {
                         popUpTo(Screen.Login.route) { inclusive = true }
                     }
+                },
+                onExploreAsGuest = {
+                    navController.navigate(Screen.GuestIntro.route)
+                }
+            )
+        }
+
+        // Guest Intro
+        composable(Screen.GuestIntro.route) {
+            GuestIntroScreen(
+                onFinish = {
+                    navController.popBackStack() // Or navigate elsewhere if needed
                 }
             )
         }

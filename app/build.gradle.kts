@@ -53,7 +53,11 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
-    
+    implementation("androidx.compose.foundation:foundation:1.8.3")
+    implementation(libs.accompanist.pager)
+
+
+
     // Networking
     implementation(libs.converter.gson)
     implementation(libs.retrofit)
