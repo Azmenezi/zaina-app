@@ -1,5 +1,6 @@
 package com.nbk.rise.ui.screens.events
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,18 +19,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.nbk.rise.R
 import com.nbk.rise.data.dtos.EventDto
 import com.nbk.rise.data.dtos.RsvpStatus
 import com.nbk.rise.ui.theme.*
 import com.nbk.rise.viewmodels.EventViewModel
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventsScreen(
@@ -37,236 +40,152 @@ fun EventsScreen(
     eventViewModel: EventViewModel = hiltViewModel()
 ) {
     val eventUiState by eventViewModel.uiState
-    
+
     var showUpcomingOnly by remember { mutableStateOf(false) }
     var showPublicOnly by remember { mutableStateOf(false) }
-    
+
     LaunchedEffect(showUpcomingOnly, showPublicOnly) {
         when {
             showUpcomingOnly -> eventViewModel.loadUpcomingEvents()
             else -> eventViewModel.loadEvents(showPublicOnly)
         }
     }
-    
+
     val currentEvents = if (showUpcomingOnly) {
         eventUiState.upcomingEvents
     } else {
         eventUiState.events
     }
-    
-    Column(
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(LuxuryGray)
     ) {
-        // Header
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = PrimaryColor
-            ),
-            shape = RoundedCornerShape(
-                bottomStart = 16.dp,
-                bottomEnd = 16.dp
-            )
+        Image(
+            painter = painterResource(id = R.drawable.login_bg),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "Events",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Text(
-                    text = "Discover upcoming RISE events and workshops",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-                
-                // Filter Chips
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item {
-                        FilterChip(
-                            onClick = { 
-                                showUpcomingOnly = false
-                                showPublicOnly = false
-                            },
-                            label = { Text("All Events") },
-                            selected = !showUpcomingOnly && !showPublicOnly,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.White,
-                                selectedLabelColor = PrimaryColor,
-                                containerColor = Color.White.copy(alpha = 0.2f),
-                                labelColor = Color.White
-                            )
-                        )
-                    }
-                    
-                    item {
-                        FilterChip(
-                            onClick = { 
-                                showUpcomingOnly = true
-                                showPublicOnly = false
-                            },
-                            label = { Text("Upcoming") },
-                            selected = showUpcomingOnly,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.White,
-                                selectedLabelColor = PrimaryColor,
-                                containerColor = Color.White.copy(alpha = 0.2f),
-                                labelColor = Color.White
-                            )
-                        )
-                    }
-                    
-                    item {
-                        FilterChip(
-                            onClick = { 
-                                showUpcomingOnly = false
-                                showPublicOnly = true
-                            },
-                            label = { Text("Public Only") },
-                            selected = !showUpcomingOnly && showPublicOnly,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.White,
-                                selectedLabelColor = PrimaryColor,
-                                containerColor = Color.White.copy(alpha = 0.2f),
-                                labelColor = Color.White
-                            )
-                        )
-                    }
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        if (eventUiState.isLoading) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = PrimaryColor)
-            }
-        } else if (currentEvents.isEmpty()) {
-            // Empty State
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(32.dp)
-                ) {
-                    Card(
-                        modifier = Modifier.size(80.dp),
-                        shape = CircleShape,
-                        colors = CardDefaults.cardColors(
-                            containerColor = AccentLight
-                        )
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Event,
-                                contentDescription = "No Events",
-                                modifier = Modifier.size(32.dp),
-                                tint = PrimaryColor
-                            )
-                        }
-                    }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = "No events available",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PrimaryColor
-                    )
-                    
-                    Text(
-                        text = "Check back later for upcoming events and workshops",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
-                }
-            }
-        } else {
-            // Events Count
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${currentEvents.size} ${if (currentEvents.size == 1) "event" else "events"}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextSecondary
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Events List
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(currentEvents) { event ->
-                    EventItem(
-                        event = event,
-                        onClick = { onEventClick(event.id.toString()) }
-                    )
-                }
-            }
-        }
-        
-        // Error handling
-        eventUiState.error?.let { error ->
+            Spacer(modifier = Modifier.height(100.dp))
+
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = ErrorRed.copy(alpha = 0.1f)
-                )
+                    .padding(horizontal = 12.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.2f)),
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                elevation = CardDefaults.cardElevation(0.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = error,
-                        color = ErrorRed,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f)
+                        text = "Events",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
                     )
-                    
-                    TextButton(
-                        onClick = { eventViewModel.clearError() }
-                    ) {
-                        Text("Dismiss", color = ErrorRed)
+                    Text(
+                        text = "Discover upcoming RISE events and workshops",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        item {
+                            FilterChip(
+                                onClick = {
+                                    showUpcomingOnly = false
+                                    showPublicOnly = false
+                                },
+                                label = { Text("All Events") },
+                                selected = !showUpcomingOnly && !showPublicOnly,
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color.White,
+                                    selectedLabelColor = Color.Black,
+                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    labelColor = Color.White
+                                )
+                            )
+                        }
+
+                        item {
+                            FilterChip(
+                                onClick = {
+                                    showUpcomingOnly = true
+                                    showPublicOnly = false
+                                },
+                                label = { Text("Upcoming") },
+                                selected = showUpcomingOnly,
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color.White,
+                                    selectedLabelColor = Color.Black,
+                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    labelColor = Color.White
+                                )
+                            )
+                        }
+
+                        item {
+                            FilterChip(
+                                onClick = {
+                                    showUpcomingOnly = false
+                                    showPublicOnly = true
+                                },
+                                label = { Text("Public Only") },
+                                selected = !showUpcomingOnly && showPublicOnly,
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color.White,
+                                    selectedLabelColor = Color.Black,
+                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    labelColor = Color.White
+                                )
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (eventUiState.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = PrimaryColor)
+                }
+            } else if (currentEvents.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("No events available", color = Color.White)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(currentEvents) { event ->
+                        EventItem(
+                            event = event,
+                            onClick = { onEventClick(event.id.toString()) }
+                        )
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 private fun EventItem(
