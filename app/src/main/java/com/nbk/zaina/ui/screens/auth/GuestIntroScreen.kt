@@ -1,6 +1,7 @@
 package com.nbk.zaina.ui.screens.auth
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -9,12 +10,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.nbk.rise.R
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun GuestIntroScreen(onFinish: () -> Unit) {
@@ -44,105 +54,140 @@ fun GuestIntroScreen(onFinish: () -> Unit) {
     val pagerState = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(Color(0xFF101010), Color(0xFF303030))
+                )
+            )
             .padding(24.dp)
     ) {
-        HorizontalPager(
-            count = pages.size,
-            state = pagerState,
-            modifier = Modifier.weight(1f)
-        ) { page ->
-            val item = pages[page]
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Image(
-                    painter = painterResource(id = item.imageRes),
-                    contentDescription = null,
-                    modifier = Modifier.size(200.dp)
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(item.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(item.description, textAlign = TextAlign.Center)
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Progress Indicator
-        LinearProgressIndicator(
-            progress = (pagerState.currentPage + 1) / pages.size.toFloat(),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(4.dp),
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (pagerState.currentPage == 0) {
-            // Only show one full-width button on first page
-            Button(
-                onClick = {
-                    coroutineScope.launch {
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+        Column(modifier = Modifier.fillMaxSize()) {
+            HorizontalPager(
+                count = pages.size,
+                state = pagerState,
+                modifier = Modifier.weight(1f)
+            ) { page ->
+                val item = pages[page]
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
+                        .graphicsLayer {
+                            shape = RoundedCornerShape(24.dp)
+                            clip = true
+                        }
+                        .background(
+                            color = Color.White.copy(alpha = 0.1f),
+                            shape = RoundedCornerShape(24.dp)
+                        )
+                        .shadow(12.dp, shape = RoundedCornerShape(24.dp), clip = false)
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center
+                    ) {
+                        Image(
+                            painter = painterResource(id = item.imageRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(220.dp)
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                        Text(
+                            item.title,
+                            style = MaterialTheme.typography.headlineSmall.copy(fontSize = 24.sp),
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            item.description,
+                            textAlign = TextAlign.Center,
+                            color = Color.White.copy(alpha = 0.9f),
+                            lineHeight = 20.sp
+                        )
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text(
-                    text = pages[1].title,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                )
+                }
             }
-        } else {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Back Button
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            LinearProgressIndicator(
+                progress = (pagerState.currentPage + 1) / pages.size.toFloat(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .clip(RectangleShape),
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            if (pagerState.currentPage == 0) {
                 Button(
                     onClick = {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         }
                     },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Back", maxLines = 1)
-                }
-
-                // Next or Finish Button
-                Button(
-                    onClick = {
-                        val currentPage = pagerState.currentPage
-                        if (currentPage == pages.lastIndex) {
-                            onFinish()
-                        } else {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(currentPage + 1)
-                            }
-                        }
-                    },
-                    modifier = Modifier.weight(2f)
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f))
                 ) {
                     Text(
-                        text = if (pagerState.currentPage == pages.lastIndex) {
-                            "Apply Now"
-                        } else {
-                            pages[pagerState.currentPage + 1].title
-                        },
+                        text = pages[1].title,
                         maxLines = 1,
                         softWrap = false,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        color = Color.White
                     )
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Button(
+                        onClick = {
+                            coroutineScope.launch {
+                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                            }
+                        },
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f))
+                    ) {
+                        Text("Back", maxLines = 1, color = Color.White)
+                    }
+
+                    Button(
+                        onClick = {
+                            val currentPage = pagerState.currentPage
+                            if (currentPage == pages.lastIndex) {
+                                onFinish()
+                            } else {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(currentPage + 1)
+                                }
+                            }
+                        },
+                        modifier = Modifier.weight(2f),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.White.copy(alpha = 0.2f))
+                    ) {
+                        Text(
+                            text = if (pagerState.currentPage == pages.lastIndex) {
+                                "Apply Now"
+                            } else {
+                                pages[pagerState.currentPage + 1].title
+                            },
+                            maxLines = 1,
+                            softWrap = false,
+                            overflow = TextOverflow.Ellipsis,
+                            color = Color.White
+                        )
+                    }
                 }
             }
         }
