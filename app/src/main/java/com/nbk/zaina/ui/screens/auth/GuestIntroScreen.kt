@@ -25,9 +25,10 @@ import com.nbk.rise.R
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.navigation.NavHostController
 
 @Composable
-fun GuestIntroScreen(onFinish: () -> Unit) {
+fun GuestIntroScreen(navController: NavHostController) {
     val pages = listOf(
         GuestIntroPage(
             title = "Welcome to RISE",
@@ -166,7 +167,7 @@ fun GuestIntroScreen(onFinish: () -> Unit) {
                         onClick = {
                             val currentPage = pagerState.currentPage
                             if (currentPage == pages.lastIndex) {
-                                onFinish()
+                                navController.navigate("register")
                             } else {
                                 coroutineScope.launch {
                                     pagerState.animateScrollToPage(currentPage + 1)

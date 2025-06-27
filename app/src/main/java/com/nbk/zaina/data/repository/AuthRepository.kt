@@ -28,7 +28,7 @@ class AuthRepository @Inject constructor(
             Result.failure(e)
         }
     }
-    
+
     suspend fun register(request: RegisterRequest): Result<JwtResponse> {
         return try {
             val response = authApiService.register(request)
@@ -37,13 +37,16 @@ class AuthRepository @Inject constructor(
                 tokenInterceptor.setToken(jwtResponse.token)
                 Result.success(jwtResponse)
             } else {
-                Result.failure(Exception("Registration failed: ${response.message()}"))
+                val errorBody = response.errorBody()?.string()
+                val message = extractErrorMessage(errorBody)
+                    ?: "Registration failed: ${response.message()}"
+                Result.failure(Exception(message))
             }
         } catch (e: Exception) {
             Result.failure(e)
         }
     }
-    
+
     fun logout() {
         tokenInterceptor.setToken(null)
     }
@@ -51,4 +54,17 @@ class AuthRepository @Inject constructor(
     fun isLoggedIn(): Boolean {
         return tokenInterceptor.getToken() != null
     }
+
+    private fun extractErrorMessage(json: String?): String? {
+        return try {
+            if (json.isNullOrBlank()) return null
+            val regex = Regex("\"(error|message|detail)\"\\s*:\\s*\"([^\"]+)\"")
+            val match = regex.find(json)
+            match?.groupValues?.get(2)
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+
 } 
