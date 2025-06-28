@@ -11,20 +11,18 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import com.nbk.rise.R
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.navigation.NavHostController
 
 @Composable
@@ -58,33 +56,40 @@ fun GuestIntroScreen(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(Color(0xFF101010), Color(0xFF303030))
-                )
-            )
-            .padding(24.dp)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        // Background image
+        Image(
+            painter = painterResource(id = R.drawable.blurry_background),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+
+        // Optional dark overlay for readability
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.5f))
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
             HorizontalPager(
                 count = pages.size,
                 state = pagerState,
-                modifier = Modifier.weight(1f)
+                modifier = Modifier
+                    .weight(1f)
             ) { page ->
                 val item = pages[page]
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(16.dp)
-                        .graphicsLayer {
-                            shape = RoundedCornerShape(24.dp)
-                            clip = true
-                        }
-                        .background(
-                            color = Color.White.copy(alpha = 0.1f),
-                            shape = RoundedCornerShape(24.dp)
-                        )
-                        .shadow(12.dp, shape = RoundedCornerShape(24.dp), clip = false)
+                        .clip(RoundedCornerShape(24.dp))
+                        .shadow(12.dp, shape = RoundedCornerShape(24.dp))
+                        .background(Color.White.copy(alpha = 0.1f))
                         .padding(24.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -121,8 +126,7 @@ fun GuestIntroScreen(navController: NavHostController) {
                 progress = (pagerState.currentPage + 1) / pages.size.toFloat(),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(4.dp)
-                    .clip(RectangleShape),
+                    .height(4.dp),
                 color = MaterialTheme.colorScheme.primary
             )
 
