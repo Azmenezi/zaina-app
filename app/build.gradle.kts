@@ -55,6 +55,8 @@ dependencies {
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.foundation:foundation:1.8.3")
     implementation(libs.accompanist.pager)
+    implementation(libs.material3)
+
 
 
 
