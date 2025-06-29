@@ -5,5 +5,6 @@
         <!-- Customize your theme here. -->
         <item name="android:statusBarColor">@color/nbk_green</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
     </style>
 </resources>

@@ -1,5 +1,8 @@
+// FULL CODE — Only visuals changed: top padding and icon color backgrounds
+
 package com.nbk.rise.ui.screens.resources
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -9,26 +12,26 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Article
-import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Folder
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.nbk.rise.R
 import com.nbk.rise.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResourcesScreen(onResourceClick: (String) -> Unit) {
     var selectedCategory by remember { mutableStateOf("All") }
-    
+
     val categories = listOf("All", "Leadership", "Skills", "Networking", "Career")
     val mockResources = listOf(
         MockResource("1", "Leadership in the Digital Age", "Learn modern leadership techniques", "Leadership", "PDF"),
@@ -38,144 +41,111 @@ fun ResourcesScreen(onResourceClick: (String) -> Unit) {
         MockResource("5", "Public Speaking Mastery", "Overcome fear and speak with confidence", "Skills", "Video"),
         MockResource("6", "Strategic Thinking Workshop", "Develop strategic leadership mindset", "Leadership", "Article")
     )
-    
-    val filteredResources = if (selectedCategory == "All") {
-        mockResources
-    } else {
-        mockResources.filter { it.category == selectedCategory }
-    }
-    
-    Column(
-        modifier = Modifier
+
+    val filteredResources = if (selectedCategory == "All") mockResources else mockResources.filter { it.category == selectedCategory }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Image(
+            painter = painterResource(R.drawable.login_bg),
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop
+        )
+        Box(modifier = Modifier
             .fillMaxSize()
-            .background(LuxuryGray)
-    ) {
-        // Header - matching dashboard pattern
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = PrimaryColor
-            ),
-            shape = RoundedCornerShape(
-                bottomStart = 16.dp,
-                bottomEnd = 16.dp
-            )
+            .background(Color.White.copy(alpha = 0.05f))
+            .blur(30.dp)
+        )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 32.dp, bottom = 104.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+
+        Spacer(modifier = Modifier.height(100.dp))
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.2f)),
+                elevation = CardDefaults.cardElevation(0.dp)
             ) {
-                Text(
-                    text = "Resources",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Text(
-                    text = "Access learning materials and development tools",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-                
-                // Category Filter Chips
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(categories) { category ->
-                        FilterChip(
-                            onClick = { selectedCategory = category },
-                            label = { Text(category) },
-                            selected = selectedCategory == category,
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = Color.White,
-                                selectedLabelColor = PrimaryColor,
-                                containerColor = Color.White.copy(alpha = 0.2f),
-                                labelColor = Color.White
-                            )
-                        )
-                    }
-                }
-            }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        if (filteredResources.isEmpty()) {
-            // Empty State
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(32.dp)
-                ) {
-                    Card(
-                        modifier = Modifier.size(80.dp),
-                        shape = CircleShape,
-                        colors = CardDefaults.cardColors(
-                            containerColor = AccentLight
-                        )
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Folder,
-                                contentDescription = "No Resources",
-                                modifier = Modifier.size(32.dp),
-                                tint = PrimaryColor
+                Column(modifier = Modifier.padding(20.dp)) {
+                    Text(
+                        text = "Resources",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "Access learning materials and development tools",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.White.copy(alpha = 0.8f)
+                    )
+                    LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        items(categories) { category ->
+                            FilterChip(
+                                onClick = { selectedCategory = category },
+                                label = { Text(category) },
+                                selected = selectedCategory == category,
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = Color.White,
+                                    selectedLabelColor = Color.Black,
+                                    containerColor = Color.White.copy(alpha = 0.2f),
+                                    labelColor = Color.White
+                                )
                             )
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.height(16.dp))
-                    
-                    Text(
-                        text = "No resources available",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = PrimaryColor
-                    )
-                    
-                    Text(
-                        text = "Check back later for new learning materials",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = TextSecondary,
-                        modifier = Modifier.padding(top = 8.dp)
-                    )
                 }
             }
-        } else {
-            // Resources Count
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "${filteredResources.size} ${if (filteredResources.size == 1) "resource" else "resources"}",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = TextSecondary
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            // Resources List
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(filteredResources) { resource ->
-                    ResourceItem(
-                        resource = resource,
-                        onClick = { onResourceClick(resource.id) }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (filteredResources.isEmpty()) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(32.dp)) {
+                        Card(
+                            modifier = Modifier.size(80.dp),
+                            shape = CircleShape,
+                            colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.2f))
+                        ) {
+                            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Folder, contentDescription = "No Resources", tint = Color.White)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("No resources available", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold, color = Color.White)
+                        Text("Check back later for new learning materials", style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = 0.8f))
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "${filteredResources.size} ${if (filteredResources.size == 1) "resource" else "resources"}",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = Color.White.copy(alpha = 0.8f)
                     )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    items(filteredResources) { resource ->
+                        ResourceItem(resource = resource, onClick = { onResourceClick(resource.id) })
+                    }
                 }
             }
         }
@@ -191,10 +161,9 @@ private fun ResourceItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() },
-        colors = CardDefaults.cardColors(
-            containerColor = SurfaceElevated
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.15f)),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(0.dp)
     ) {
         Row(
             modifier = Modifier
@@ -202,23 +171,19 @@ private fun ResourceItem(
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Resource Type Icon
             Card(
                 modifier = Modifier.size(56.dp),
                 shape = CircleShape,
                 colors = CardDefaults.cardColors(
                     containerColor = when (resource.type) {
-                        "PDF" -> ErrorRed.copy(alpha = 0.2f)
-                        "Video" -> InfoBlue.copy(alpha = 0.2f)
-                        "Article" -> SuccessGreen.copy(alpha = 0.2f)
-                        else -> AccentLight
+                        "PDF" -> Color(0xFFFF6B6B)
+                        "Video" -> Color(0xFF4A90E2)
+                        "Article" -> Color(0xFF81C784)
+                        else -> Color.White.copy(alpha = 0.2f)
                     }
                 )
             ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = when (resource.type) {
                             "PDF" -> Icons.Default.Article
@@ -226,25 +191,15 @@ private fun ResourceItem(
                             "Article" -> Icons.Default.School
                             else -> Icons.Default.Folder
                         },
-                        contentDescription = resource.type,
-                        modifier = Modifier.size(24.dp),
-                        tint = when (resource.type) {
-                            "PDF" -> ErrorRed
-                            "Video" -> InfoBlue
-                            "Article" -> SuccessGreen
-                            else -> PrimaryColor
-                        }
+                        contentDescription = null,
+                        tint = Color.White
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.width(12.dp))
-            
-            // Resource Info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                // Title and Category Badge
+
+            Column(modifier = Modifier.weight(1f)) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -253,66 +208,51 @@ private fun ResourceItem(
                         text = resource.title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
-                        color = PrimaryColor,
-                        modifier = Modifier.weight(1f, fill = false),
+                        color = Color.White,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    
-                    // Category Badge
                     AssistChip(
-                        onClick = { },
-                        label = { 
+                        onClick = {},
+                        label = {
                             Text(
                                 text = resource.category,
                                 style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.Medium
-                            ) 
+                            )
                         },
                         colors = AssistChipDefaults.assistChipColors(
-                            containerColor = AccentColor.copy(alpha = 0.3f),
-                            labelColor = AccentDark
+                            containerColor = Color.White.copy(alpha = 0.3f),
+                            labelColor = Color.Black
                         ),
                         modifier = Modifier.height(24.dp)
                     )
                 }
-                
-                // Description
+
                 Text(
                     text = resource.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary,
+                    color = Color.White.copy(alpha = 0.8f),
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
-            
+
             Spacer(modifier = Modifier.width(8.dp))
-            
-            // Type Badge
+
             AssistChip(
-                onClick = { },
-                label = { 
+                onClick = {},
+                label = {
                     Text(
                         text = resource.type,
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Medium
-                    ) 
+                    )
                 },
                 colors = AssistChipDefaults.assistChipColors(
-                    containerColor = when (resource.type) {
-                        "PDF" -> ErrorRed.copy(alpha = 0.2f)
-                        "Video" -> InfoBlue.copy(alpha = 0.2f)
-                        "Article" -> SuccessGreen.copy(alpha = 0.2f)
-                        else -> SecondaryColor.copy(alpha = 0.2f)
-                    },
-                    labelColor = when (resource.type) {
-                        "PDF" -> ErrorRed
-                        "Video" -> InfoBlue
-                        "Article" -> SuccessGreen
-                        else -> SecondaryColor
-                    }
+                    containerColor = Color.White.copy(alpha = 0.2f),
+                    labelColor = Color.White
                 ),
                 modifier = Modifier.height(24.dp)
             )
@@ -320,7 +260,6 @@ private fun ResourceItem(
     }
 }
 
-// Mock data class
 private data class MockResource(
     val id: String,
     val title: String,
@@ -340,4 +279,4 @@ fun ResourceDetailScreen(resourceId: String, onNavigateBack: () -> Unit) {
             style = MaterialTheme.typography.headlineMedium
         )
     }
-} 
+}
