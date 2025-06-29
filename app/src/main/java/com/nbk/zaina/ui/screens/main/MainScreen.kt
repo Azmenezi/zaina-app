@@ -1,5 +1,6 @@
 package com.nbk.rise.ui.screens.main
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,7 +34,10 @@ import com.nbk.rise.ui.screens.events.EventsScreen
 import com.nbk.rise.ui.screens.resources.ResourcesScreen
 import com.nbk.rise.ui.screens.directory.DirectoryScreen
 import com.nbk.rise.ui.screens.messages.MessagesScreen
+import com.nbk.rise.ui.theme.LuxuryGray
+import com.nbk.rise.ui.theme.LuxuryWhite
 import com.nbk.rise.ui.theme.PrimaryColor
+import com.nbk.rise.ui.theme.SecondaryColor
 import com.nbk.rise.ui.theme.TextMuted
 import com.nbk.rise.ui.theme.TextPrimary
 import com.nbk.rise.viewmodels.AuthViewModel
@@ -49,7 +54,10 @@ fun MainScreen(
     
     // Create a separate nav controller for bottom navigation
     val bottomNavController = rememberNavController()
-    
+    val activity = LocalActivity.current
+    val window = activity?.window!!
+    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+
     var showDeleteConfirmation by remember { mutableStateOf(false) }
     
     Scaffold(
@@ -234,7 +242,7 @@ fun MainScreen(
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+                    text = "Are you sure you want to logout from your account?",
                     color = TextPrimary
                 )
             },
@@ -252,7 +260,7 @@ fun MainScreen(
                         containerColor = MaterialTheme.colorScheme.error
                     )
                 ) {
-                    Text("Delete Account")
+                    Text("Logout")
                 }
             },
             dismissButton = {
