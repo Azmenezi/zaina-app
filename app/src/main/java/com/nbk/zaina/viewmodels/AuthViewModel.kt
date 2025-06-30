@@ -78,6 +78,31 @@ class AuthViewModel @Inject constructor(
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
+
+    fun register(request: com.nbk.rise.data.requests.RegisterRequest, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(isLoading = true, error = null)
+
+            authRepository.register(request)
+                .onSuccess { jwtResponse ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        isAuthenticated = true,
+                        currentUser = jwtResponse,
+                        error = null
+                    )
+                    getCurrentUser()
+                    onSuccess()
+                }
+                .onFailure { exception ->
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        error = exception.message ?: "Registration failed"
+                    )
+                }
+        }
+    }
+
 }
 
 data class AuthUiState(

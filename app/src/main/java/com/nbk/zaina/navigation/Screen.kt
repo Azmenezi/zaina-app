@@ -10,7 +10,13 @@ sealed class Screen(
 ) {
     // Authentication
     object Login : Screen("login")
-    
+
+    // Guest Intro
+    object GuestIntro : Screen("guest_intro")
+
+    // Guest Registration
+    object Register : Screen("register")
+
     // Main Screen with Bottom Navigation
     object Main : Screen("main")
     

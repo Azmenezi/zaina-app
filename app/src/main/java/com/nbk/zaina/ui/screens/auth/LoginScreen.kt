@@ -303,7 +303,7 @@ fun LoginScreen(
                         )
                     ) {
                         Text(
-                            text = "Explore as Guest",
+                            text = "Join RISE",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.SemiBold
                         )
