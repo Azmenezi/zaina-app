@@ -25,6 +25,9 @@ import com.nbk.rise.data.dtos.EventRsvpDto
 import com.nbk.rise.data.dtos.RsvpStatus
 import com.nbk.rise.ui.theme.*
 import com.nbk.rise.viewmodels.EventViewModel
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
@@ -158,7 +161,7 @@ fun EventDetailScreen(
                                         }
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
-                                            text = formatDetailEventDate(event.date),
+                                            text = formatDetailEventDate(LocalDateTime.parse(event.date)),
                                             style = MaterialTheme.typography.bodyLarge,
                                             color = TextPrimary,
                                             fontWeight = FontWeight.Medium
@@ -486,8 +489,8 @@ private fun AttendeeItem(attendee: EventRsvpDto) {
     }
 }
 
-private fun formatDetailEventDate(date: kotlinx.datetime.Instant): String {
-    val localDateTime = date.toLocalDateTime(TimeZone.currentSystemDefault())
+private fun formatDetailEventDate(date: kotlinx.datetime.LocalDateTime): String {
+    val localDateTime = date
     val dayOfWeek = when (localDateTime.dayOfWeek.ordinal) {
         0 -> "Monday"
         1 -> "Tuesday"

@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.ConnectWithoutContact
@@ -33,49 +34,44 @@ import kotlinx.datetime.toLocalDateTime
 @Composable
 fun NotificationsScreen(
     onProfileClick: (String) -> Unit,
+    onNavigateBack: () -> Unit,
     connectionViewModel: ConnectionViewModel = hiltViewModel()
 ) {
     val connectionUiState by connectionViewModel.uiState.collectAsStateWithLifecycle()
-    
+
     LaunchedEffect(Unit) {
         connectionViewModel.loadPendingConnections()
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(LuxuryGray)
     ) {
         // Header
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = PrimaryColor
-            ),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(
-                bottomStart = 16.dp,
-                bottomEnd = 16.dp
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(20.dp)
-            ) {
+        TopAppBar(
+            title = {
                 Text(
                     text = "Notifications",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
-                Text(
-                    text = "Connection requests and updates",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
-            }
-        }
-        
+            },
+            navigationIcon = {
+                IconButton(onClick = onNavigateBack) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Go Back",
+                        tint = Color.White
+                    )
+                }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = PrimaryColor
+            )
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
-        
+
         if (connectionUiState.isLoadingPending) {
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -112,16 +108,16 @@ fun NotificationsScreen(
                             )
                         }
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Text(
                         text = "No new notifications",
                         style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.SemiBold,
                         color = PrimaryColor
                     )
-                    
+
                     Text(
                         text = "Connection requests and updates will appear here",
                         style = MaterialTheme.typography.bodyLarge,
@@ -140,10 +136,10 @@ fun NotificationsScreen(
                 items(connectionUiState.pendingConnections) { connection ->
                     ConnectionRequestItem(
                         connection = connection,
-                        onAccept = { 
+                        onAccept = {
                             connectionViewModel.updateConnection(connection.id, ConnectionStatus.ACCEPTED)
                         },
-                        onDecline = { 
+                        onDecline = {
                             connectionViewModel.updateConnection(connection.id, ConnectionStatus.DECLINED)
                         },
                         onProfileClick = { onProfileClick(connection.requesterId.toString()) },
@@ -152,7 +148,7 @@ fun NotificationsScreen(
                 }
             }
         }
-        
+
         // Error handling
         connectionUiState.pendingError?.let { error ->
             Card(
@@ -227,9 +223,9 @@ private fun ConnectionRequestItem(
                         )
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.width(12.dp))
-                
+
                 // Content
                 Column(
                     modifier = Modifier.weight(1f)
@@ -243,7 +239,7 @@ private fun ConnectionRequestItem(
                         fontWeight = FontWeight.SemiBold,
                         color = PrimaryColor
                     )
-                    
+
                     Text(
                         text = "${connection.requesterName ?: "Someone"} wants to ${
                             when (connection.type) {
@@ -255,7 +251,7 @@ private fun ConnectionRequestItem(
                         color = TextSecondary,
                         modifier = Modifier.padding(top = 4.dp)
                     )
-                    
+
                     Text(
                         text = formatRequestTime(connection.requestedAt),
                         style = MaterialTheme.typography.bodySmall,
@@ -264,9 +260,9 @@ private fun ConnectionRequestItem(
                     )
                 }
             }
-            
+
             Spacer(modifier = Modifier.height(12.dp))
-            
+
             // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -288,7 +284,7 @@ private fun ConnectionRequestItem(
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("View Profile")
                 }
-                
+
                 // Decline Button
                 OutlinedButton(
                     onClick = onDecline,
@@ -310,7 +306,7 @@ private fun ConnectionRequestItem(
                         )
                     }
                 }
-                
+
                 // Accept Button
                 Button(
                     onClick = onAccept,
@@ -341,13 +337,13 @@ private fun ConnectionRequestItem(
 private fun formatRequestTime(timestamp: kotlinx.datetime.Instant): String {
     val localDateTime = timestamp.toLocalDateTime(TimeZone.currentSystemDefault())
     val now = kotlinx.datetime.Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-    
+
     val daysDiff = now.date.toEpochDays() - localDateTime.date.toEpochDays()
-    
+
     return when {
         daysDiff == 0 -> "Today"
         daysDiff == 1 -> "Yesterday"
         daysDiff < 7 -> "$daysDiff days ago"
         else -> "${localDateTime.dayOfMonth}/${localDateTime.monthNumber}/${localDateTime.year}"
     }
-} 
+}
