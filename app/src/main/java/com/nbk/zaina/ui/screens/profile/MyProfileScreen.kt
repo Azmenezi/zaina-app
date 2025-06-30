@@ -1,12 +1,10 @@
 package com.nbk.rise.ui.screens.profile
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -40,6 +38,8 @@ fun MyProfileScreen(
     val authUiState by authViewModel.uiState
     val profileUiState by profileViewModel.uiState.collectAsState()
 
+    val profile = profileUiState.profile
+
     var name by remember { mutableStateOf("") }
     var position by remember { mutableStateOf("") }
     var company by remember { mutableStateOf("") }
@@ -52,14 +52,14 @@ fun MyProfileScreen(
         authUiState.userDetails?.id?.let { profileViewModel.loadProfile(it) }
     }
 
-    LaunchedEffect(profileUiState.profile) {
-        profileUiState.profile?.let { profile ->
-            name = profile.name
-            position = profile.position.orEmpty()
-            company = profile.company.orEmpty()
-            bio = profile.bio.orEmpty()
-            skills = profile.skills
-            linkedinUrl = profile.linkedinUrl.orEmpty()
+    LaunchedEffect(profile) {
+        profile?.let {
+            name = it.name
+            position = it.position.orEmpty()
+            company = it.company.orEmpty()
+            bio = it.bio.orEmpty()
+            skills = it.skills
+            linkedinUrl = it.linkedinUrl.orEmpty()
         }
     }
 
@@ -78,49 +78,23 @@ fun MyProfileScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                // Header
-                Text(
-                    text = "My Profile",
-                    style = MaterialTheme.typography.headlineLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-                Text(
-                    text = "Update your profile information",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.White.copy(alpha = 0.8f)
-                )
+                Text("My Profile", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Bold, color = Color.White)
+                Text("Update your profile information", style = MaterialTheme.typography.bodyLarge, color = Color.White.copy(alpha = 0.8f))
             }
 
             item {
-                // Profile Image
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Box(
-                            modifier = Modifier.size(120.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (profileUiState.profile?.imageUrl != null) {
+                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))) {
+                    Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
+                            if (profile?.imageUrl != null) {
                                 AsyncImage(
-                                    model = profileUiState.profile.imageUrl,
+                                    model = profile.imageUrl,
                                     contentDescription = null,
                                     contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .size(120.dp)
-                                        .clip(CircleShape)
+                                    modifier = Modifier.size(120.dp).clip(CircleShape)
                                 )
                             } else {
-                                Card(
-                                    modifier = Modifier.size(120.dp),
-                                    shape = CircleShape,
-                                    colors = CardDefaults.cardColors(containerColor = AccentLight)
-                                ) {
+                                Card(modifier = Modifier.size(120.dp), shape = CircleShape, colors = CardDefaults.cardColors(containerColor = AccentLight)) {
                                     Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                         Icon(Icons.Default.Camera, contentDescription = null, tint = PrimaryColor)
                                     }
@@ -130,7 +104,7 @@ fun MyProfileScreen(
 
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        OutlinedButton(onClick = { /* photo picker */ }) {
+                        OutlinedButton(onClick = { /* TODO: pick photo */ }) {
                             Icon(Icons.Default.Camera, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Change Photo")
@@ -140,11 +114,7 @@ fun MyProfileScreen(
             }
 
             item {
-                // Basic Info
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
-                ) {
+                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Basic Information", color = Color.White, fontWeight = FontWeight.SemiBold)
 
@@ -153,11 +123,7 @@ fun MyProfileScreen(
                             onValueChange = { name = it },
                             label = { Text("Full Name *") },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = PrimaryColor,
-                                focusedLabelColor = PrimaryColor,
-                                unfocusedContainerColor = Color.Transparent
-                            )
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryColor, focusedLabelColor = PrimaryColor, unfocusedContainerColor = Color.Transparent)
                         )
 
                         OutlinedTextField(
@@ -165,10 +131,7 @@ fun MyProfileScreen(
                             onValueChange = { position = it },
                             label = { Text("Position") },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = PrimaryColor,
-                                focusedLabelColor = PrimaryColor
-                            )
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryColor, focusedLabelColor = PrimaryColor)
                         )
 
                         OutlinedTextField(
@@ -176,10 +139,7 @@ fun MyProfileScreen(
                             onValueChange = { company = it },
                             label = { Text("Company") },
                             modifier = Modifier.fillMaxWidth(),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = PrimaryColor,
-                                focusedLabelColor = PrimaryColor
-                            )
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryColor, focusedLabelColor = PrimaryColor)
                         )
 
                         OutlinedTextField(
@@ -188,21 +148,14 @@ fun MyProfileScreen(
                             label = { Text("LinkedIn URL") },
                             modifier = Modifier.fillMaxWidth(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = PrimaryColor,
-                                focusedLabelColor = PrimaryColor
-                            )
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryColor, focusedLabelColor = PrimaryColor)
                         )
                     }
                 }
             }
 
             item {
-                // Skills
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
-                ) {
+                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("Skills", color = Color.White, fontWeight = FontWeight.SemiBold)
 
@@ -212,10 +165,7 @@ fun MyProfileScreen(
                                 onValueChange = { newSkill = it },
                                 label = { Text("Add Skill") },
                                 modifier = Modifier.weight(1f),
-                                colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = PrimaryColor,
-                                    focusedLabelColor = PrimaryColor
-                                )
+                                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryColor, focusedLabelColor = PrimaryColor)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             IconButton(onClick = {
@@ -232,27 +182,16 @@ fun MyProfileScreen(
                             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(skills) { skill ->
                                     InputChip(
-                                        selected = false, // or true depending on your logic
+                                        selected = false,
                                         onClick = { },
                                         label = { Text(skill) },
                                         trailingIcon = {
-                                            IconButton(
-                                                onClick = { skills = skills - skill },
-                                                modifier = Modifier.size(18.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Close,
-                                                    contentDescription = "Remove",
-                                                    modifier = Modifier.size(14.dp)
-                                                )
+                                            IconButton(onClick = { skills = skills - skill }, modifier = Modifier.size(18.dp)) {
+                                                Icon(Icons.Default.Close, contentDescription = "Remove", modifier = Modifier.size(14.dp))
                                             }
                                         },
-                                        colors = InputChipDefaults.inputChipColors(
-                                            containerColor = AccentLight,
-                                            labelColor = PrimaryColor
-                                        )
+                                        colors = InputChipDefaults.inputChipColors(containerColor = AccentLight, labelColor = PrimaryColor)
                                     )
-
                                 }
                             }
                         }
@@ -261,11 +200,7 @@ fun MyProfileScreen(
             }
 
             item {
-                // Bio
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
-                ) {
+                Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text("About Me", color = Color.White, fontWeight = FontWeight.SemiBold)
 
@@ -273,20 +208,14 @@ fun MyProfileScreen(
                             value = bio,
                             onValueChange = { bio = it },
                             label = { Text("Bio") },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = PrimaryColor,
-                                focusedLabelColor = PrimaryColor
-                            )
+                            modifier = Modifier.fillMaxWidth().height(120.dp),
+                            colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = PrimaryColor, focusedLabelColor = PrimaryColor)
                         )
                     }
                 }
             }
 
             item {
-                // Save Button
                 Button(
                     onClick = {
                         authUiState.userDetails?.id?.let { userId ->
@@ -298,15 +227,13 @@ fun MyProfileScreen(
                                     company = company.ifBlank { null },
                                     skills = skills,
                                     bio = bio.ifBlank { null },
-                                    imageUrl = profileUiState.profile?.imageUrl,
+                                    imageUrl = profile?.imageUrl,
                                     linkedinUrl = linkedinUrl.ifBlank { null }
                                 )
                             )
                         }
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
                     enabled = name.isNotBlank() && !profileUiState.isUpdating,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Brush.horizontalGradient(
@@ -325,10 +252,7 @@ fun MyProfileScreen(
 
             profileUiState.updateError?.let { error ->
                 item {
-                    Card(
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f))
-                    ) {
+                    Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f))) {
                         Text(error, color = ErrorRed, modifier = Modifier.padding(16.dp))
                     }
                 }
@@ -338,7 +262,5 @@ fun MyProfileScreen(
 }
 
 private fun Brush.toBrushColor(): Color {
-    // This is a placeholder. If you want a gradient-colored button,
-    // you'll need to draw it with Box+Brush instead.
-    return Color(0xFF64B5F6)
+    return Color(0xFF64B5F6) // fallback solid color
 }

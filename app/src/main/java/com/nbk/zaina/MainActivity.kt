@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RiseTheme {
-                enableEdgeToEdge()
+               // enableEdgeToEdge()
                 val navController = rememberNavController()
                 val authViewModel: AuthViewModel = hiltViewModel()
 
