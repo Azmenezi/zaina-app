@@ -1,7 +1,6 @@
 package com.nbk.rise.ui.screens.messages
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,7 +22,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.nbk.rise.R
 import com.nbk.rise.data.dtos.MessageDto
-import com.nbk.rise.ui.theme.*
 import com.nbk.rise.viewmodels.AuthViewModel
 import com.nbk.rise.viewmodels.MessageViewModel
 import kotlinx.coroutines.launch

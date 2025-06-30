@@ -17,6 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -24,11 +25,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import com.nbk.rise.R
 import com.nbk.rise.data.requests.UpdateProfileRequest
 import com.nbk.rise.ui.theme.*
 import com.nbk.rise.viewmodels.AuthViewModel
 import com.nbk.rise.viewmodels.ProfileViewModel
-import kotlinx.coroutines.flow.collectLatest
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,7 +39,7 @@ fun MyProfileScreen(
 ) {
     val authUiState by authViewModel.uiState
     val profileUiState by profileViewModel.uiState.collectAsState()
-    
+
     var name by remember { mutableStateOf("") }
     var position by remember { mutableStateOf("") }
     var company by remember { mutableStateOf("") }
@@ -46,46 +47,38 @@ fun MyProfileScreen(
     var skills by remember { mutableStateOf(listOf<String>()) }
     var newSkill by remember { mutableStateOf("") }
     var linkedinUrl by remember { mutableStateOf("") }
-    
-    // Load current profile when user is available
+
     LaunchedEffect(authUiState.userDetails?.id) {
-        authUiState.userDetails?.id?.let { userId ->
-            profileViewModel.loadProfile(userId)
-        }
+        authUiState.userDetails?.id?.let { profileViewModel.loadProfile(it) }
     }
-    
-    // Populate form when profile loads
+
     LaunchedEffect(profileUiState.profile) {
-        val profile = profileUiState.profile
-        if (profile != null) {
+        profileUiState.profile?.let { profile ->
             name = profile.name
-            position = profile.position ?: ""
-            company = profile.company ?: ""
-            bio = profile.bio ?: ""
+            position = profile.position.orEmpty()
+            company = profile.company.orEmpty()
+            bio = profile.bio.orEmpty()
             skills = profile.skills
-            linkedinUrl = profile.linkedinUrl ?: ""
+            linkedinUrl = profile.linkedinUrl.orEmpty()
         }
     }
-    
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(LuxuryGray)
-    ) {
-        // Header - matching dashboard pattern
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = PrimaryColor
-            ),
-            shape = RoundedCornerShape(
-                bottomStart = 16.dp,
-                bottomEnd = 16.dp
-            )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        AsyncImage(
+            model = R.drawable.login_bg,
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(20.dp)
-            ) {
+            item {
+                // Header
                 Text(
                     text = "My Profile",
                     style = MaterialTheme.typography.headlineLarge,
@@ -98,23 +91,12 @@ fun MyProfileScreen(
                     color = Color.White.copy(alpha = 0.8f)
                 )
             }
-        }
-        
-        Spacer(modifier = Modifier.height(16.dp))
-        
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
+
             item {
-                // Profile Photo Section
+                // Profile Image
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = SurfaceElevated
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -126,75 +108,46 @@ fun MyProfileScreen(
                         ) {
                             if (profileUiState.profile?.imageUrl != null) {
                                 AsyncImage(
-                                    model = profileUiState.profile?.imageUrl,
-                                    contentDescription = "Profile Photo",
+                                    model = profileUiState.profile.imageUrl,
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
                                     modifier = Modifier
                                         .size(120.dp)
-                                        .clip(CircleShape),
-                                    contentScale = ContentScale.Crop
+                                        .clip(CircleShape)
                                 )
                             } else {
                                 Card(
                                     modifier = Modifier.size(120.dp),
                                     shape = CircleShape,
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = AccentLight
-                                    )
+                                    colors = CardDefaults.cardColors(containerColor = AccentLight)
                                 ) {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Camera,
-                                            contentDescription = "Add Photo",
-                                            modifier = Modifier.size(32.dp),
-                                            tint = PrimaryColor
-                                        )
+                                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Icon(Icons.Default.Camera, contentDescription = null, tint = PrimaryColor)
                                     }
                                 }
                             }
                         }
-                        
+
                         Spacer(modifier = Modifier.height(8.dp))
-                        
-                        OutlinedButton(
-                            onClick = { /* TODO: Implement photo picker */ },
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = PrimaryColor
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Camera,
-                                contentDescription = null,
-                                modifier = Modifier.size(18.dp)
-                            )
+
+                        OutlinedButton(onClick = { /* photo picker */ }) {
+                            Icon(Icons.Default.Camera, contentDescription = null)
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Change Photo")
                         }
                     }
                 }
             }
-            
+
             item {
-                // Basic Information
+                // Basic Info
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = SurfaceElevated
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            text = "Basic Information",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = PrimaryColor
-                        )
-                        
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Basic Information", color = Color.White, fontWeight = FontWeight.SemiBold)
+
                         OutlinedTextField(
                             value = name,
                             onValueChange = { name = it },
@@ -202,10 +155,11 @@ fun MyProfileScreen(
                             modifier = Modifier.fillMaxWidth(),
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = PrimaryColor,
-                                focusedLabelColor = PrimaryColor
+                                focusedLabelColor = PrimaryColor,
+                                unfocusedContainerColor = Color.Transparent
                             )
                         )
-                        
+
                         OutlinedTextField(
                             value = position,
                             onValueChange = { position = it },
@@ -216,7 +170,7 @@ fun MyProfileScreen(
                                 focusedLabelColor = PrimaryColor
                             )
                         )
-                        
+
                         OutlinedTextField(
                             value = company,
                             onValueChange = { company = it },
@@ -227,7 +181,7 @@ fun MyProfileScreen(
                                 focusedLabelColor = PrimaryColor
                             )
                         )
-                        
+
                         OutlinedTextField(
                             value = linkedinUrl,
                             onValueChange = { linkedinUrl = it },
@@ -242,31 +196,17 @@ fun MyProfileScreen(
                     }
                 }
             }
-            
+
             item {
-                // Skills Section
+                // Skills
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = SurfaceElevated
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = "Skills",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = PrimaryColor
-                        )
-                        
-                        // Add new skill
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("Skills", color = Color.White, fontWeight = FontWeight.SemiBold)
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
                             OutlinedTextField(
                                 value = newSkill,
                                 onValueChange = { newSkill = it },
@@ -278,37 +218,26 @@ fun MyProfileScreen(
                                 )
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            IconButton(
-                                onClick = {
-                                    if (newSkill.isNotBlank() && newSkill !in skills) {
-                                        skills = skills + newSkill
-                                        newSkill = ""
-                                    }
+                            IconButton(onClick = {
+                                if (newSkill.isNotBlank() && newSkill !in skills) {
+                                    skills = skills + newSkill
+                                    newSkill = ""
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Add Skill",
-                                    tint = PrimaryColor
-                                )
+                            }) {
+                                Icon(Icons.Default.Add, contentDescription = null, tint = PrimaryColor)
                             }
                         }
-                        
-                        // Skills chips
+
                         if (skills.isNotEmpty()) {
-                            LazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
+                            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 items(skills) { skill ->
                                     InputChip(
+                                        selected = false, // or true depending on your logic
                                         onClick = { },
                                         label = { Text(skill) },
-                                        selected = false,
                                         trailingIcon = {
                                             IconButton(
-                                                onClick = {
-                                                    skills = skills - skill
-                                                },
+                                                onClick = { skills = skills - skill },
                                                 modifier = Modifier.size(18.dp)
                                             ) {
                                                 Icon(
@@ -323,32 +252,23 @@ fun MyProfileScreen(
                                             labelColor = PrimaryColor
                                         )
                                     )
+
                                 }
                             }
                         }
                     }
                 }
             }
-            
+
             item {
-                // Bio Section
+                // Bio
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = SurfaceElevated
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.White.copy(0.08f))
                 ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
-                    ) {
-                        Text(
-                            text = "About Me",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = PrimaryColor
-                        )
-                        
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Text("About Me", color = Color.White, fontWeight = FontWeight.SemiBold)
+
                         OutlinedTextField(
                             value = bio,
                             onValueChange = { bio = it },
@@ -356,7 +276,6 @@ fun MyProfileScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(120.dp),
-                            maxLines = 5,
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedBorderColor = PrimaryColor,
                                 focusedLabelColor = PrimaryColor
@@ -365,22 +284,24 @@ fun MyProfileScreen(
                     }
                 }
             }
-            
+
             item {
                 // Save Button
                 Button(
                     onClick = {
                         authUiState.userDetails?.id?.let { userId ->
-                            val request = UpdateProfileRequest(
-                                name = name,
-                                position = position.ifBlank { null },
-                                company = company.ifBlank { null },
-                                skills = skills,
-                                bio = bio.ifBlank { null },
-                                imageUrl = profileUiState.profile?.imageUrl,
-                                linkedinUrl = linkedinUrl.ifBlank { null }
+                            profileViewModel.updateProfile(
+                                userId,
+                                UpdateProfileRequest(
+                                    name = name,
+                                    position = position.ifBlank { null },
+                                    company = company.ifBlank { null },
+                                    skills = skills,
+                                    bio = bio.ifBlank { null },
+                                    imageUrl = profileUiState.profile?.imageUrl,
+                                    linkedinUrl = linkedinUrl.ifBlank { null }
+                                )
                             )
-                            profileViewModel.updateProfile(userId, request)
                         }
                     },
                     modifier = Modifier
@@ -388,43 +309,36 @@ fun MyProfileScreen(
                         .height(48.dp),
                     enabled = name.isNotBlank() && !profileUiState.isUpdating,
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = PrimaryColor,
+                        containerColor = Brush.horizontalGradient(
+                            listOf(Color(0xFFFFA726), Color(0xFF64B5F6))
+                        ).toBrushColor(),
                         contentColor = Color.White
                     )
                 ) {
                     if (profileUiState.isUpdating) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = Color.White
-                        )
+                        CircularProgressIndicator(modifier = Modifier.size(20.dp), color = Color.White)
                     } else {
-                        Text(
-                            text = "Save Profile",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
-                        )
+                        Text("Save Profile", fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
-            
-            // Error handling
+
             profileUiState.updateError?.let { error ->
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = ErrorRed.copy(alpha = 0.1f)
-                        )
+                        colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.1f))
                     ) {
-                        Text(
-                            text = error,
-                            color = ErrorRed,
-                            modifier = Modifier.padding(16.dp),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Text(error, color = ErrorRed, modifier = Modifier.padding(16.dp))
                     }
                 }
             }
         }
     }
-} 
+}
+
+private fun Brush.toBrushColor(): Color {
+    // This is a placeholder. If you want a gradient-colored button,
+    // you'll need to draw it with Box+Brush instead.
+    return Color(0xFF64B5F6)
+}

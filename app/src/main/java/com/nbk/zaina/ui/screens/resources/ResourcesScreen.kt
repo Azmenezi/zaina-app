@@ -25,7 +25,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.nbk.rise.R
-import com.nbk.rise.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,7 +62,7 @@ fun ResourcesScreen(onResourceClick: (String) -> Unit) {
                 .padding(top = 32.dp, bottom = 104.dp)
         ) {
 
-        Spacer(modifier = Modifier.height(100.dp))
+        Spacer(modifier = Modifier.height(68.dp))
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
