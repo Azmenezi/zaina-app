@@ -111,6 +111,9 @@ fun AppNavigation(
             NotificationsScreen(
                 onProfileClick = { userId ->
                     navController.navigate(Screen.ViewProfile.createRoute(userId))
+                },
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

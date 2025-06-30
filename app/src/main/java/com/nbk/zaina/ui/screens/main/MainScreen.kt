@@ -1,10 +1,13 @@
 package com.nbk.rise.ui.screens.main
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Dashboard
 import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Message
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.People
@@ -15,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,7 +31,10 @@ import com.nbk.rise.ui.screens.events.EventsScreen
 import com.nbk.rise.ui.screens.resources.ResourcesScreen
 import com.nbk.rise.ui.screens.directory.DirectoryScreen
 import com.nbk.rise.ui.screens.messages.MessagesScreen
+import com.nbk.rise.ui.theme.LuxuryGray
+import com.nbk.rise.ui.theme.LuxuryWhite
 import com.nbk.rise.ui.theme.PrimaryColor
+import com.nbk.rise.ui.theme.SecondaryColor
 import com.nbk.rise.ui.theme.TextMuted
 import com.nbk.rise.ui.theme.TextPrimary
 import com.nbk.rise.viewmodels.AuthViewModel
@@ -43,6 +50,12 @@ fun MainScreen(
     val userRole = authUiState.userRole
 
     val bottomNavController = rememberNavController()
+
+    val activity = LocalActivity.current
+    val window = activity?.window!!
+    WindowCompat.getInsetsController(window, window.decorView).isAppearanceLightStatusBars = true
+
+
     var showDeleteConfirmation by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -90,9 +103,11 @@ fun MainScreen(
                         }
                     }) {
                         Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = if (isGuestMode) "Back to Login" else "Settings",
+
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = if (isGuestMode) "Back to Login" else "Logout",
                             tint = Color.White
+
                         )
                     }
                 }
@@ -126,9 +141,11 @@ fun MainScreen(
             }
             composable(Screen.AlumnaDashboard.route) {
                 AlumnaDashboardScreen(
+
                     onNavigateToEvents = { bottomNavController.navigate(Screen.Events.route) },
                     onNavigateToResources = { bottomNavController.navigate(Screen.Resources.route) },
                     onNavigateToDirectory = { bottomNavController.navigate(Screen.Directory.route) }
+
                 )
             }
             composable(Screen.MentorDashboard.route) {
@@ -163,7 +180,9 @@ fun MainScreen(
             },
             text = {
                 Text(
-                    "Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently removed.",
+
+                    text = "Are you sure you want to logout from your account?",
+
                     color = TextPrimary
                 )
             },
@@ -178,7 +197,7 @@ fun MainScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
                 ) {
-                    Text("Delete Account")
+                    Text("Logout")
                 }
             },
             dismissButton = {

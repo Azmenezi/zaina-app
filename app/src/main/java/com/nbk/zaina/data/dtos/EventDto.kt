@@ -7,7 +7,7 @@ data class EventDto(
     val id: UUID,
     val title: String,
     val description: String? = null,
-    val date: Instant,
+    val date: String,
     val location: String? = null,
     val isPublic: Boolean,
     val rsvpStatus: RsvpStatus? = null,
